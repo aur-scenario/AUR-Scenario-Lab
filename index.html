@@ -19,7 +19,9 @@
   .kicker{font-family:var(--sans); font-weight:700; font-size:11px; letter-spacing:.14em; color:var(--orange); text-transform:uppercase;}
   h1{font-family:var(--sans); font-weight:800; font-size:clamp(30px,6vw,44px); letter-spacing:-.02em; margin:6px 0 10px; text-wrap:balance;}
   .lede{font-size:17px; color:var(--ink2); max-width:62ch; margin:0 0 6px;}
-  .byline{font-family:var(--sans); font-size:12px; color:var(--faint); letter-spacing:.06em; text-transform:uppercase; margin-bottom:26px;}
+  .byline{font-family:var(--sans); font-size:12px; color:var(--faint); letter-spacing:.06em; text-transform:uppercase; margin-bottom:10px;}
+  .paperlink{display:inline-block; font-family:var(--sans); font-weight:600; font-size:13px; color:var(--ink); background:#fff; border:1px solid var(--card-edge); border-radius:4px; padding:7px 12px; text-decoration:none; margin-bottom:22px;}
+  .paperlink:hover{border-color:var(--orange); color:var(--orange);}
   .card{background:var(--card); border:1px solid var(--card-edge); border-radius:6px; padding:18px 20px; margin:18px 0;}
   .fig-kicker{font-family:var(--sans); font-weight:700; font-size:10.5px; letter-spacing:.12em; color:var(--orange); text-transform:uppercase;}
   .fig-title{font-family:var(--sans); font-weight:700; font-size:19px; margin:2px 0 2px; letter-spacing:-.01em;}
@@ -88,10 +90,11 @@
 <div class="wrap">
   <div class="kicker">Aurora Innovation (NASDAQ: AUR) · Interactive companion to the due-diligence paper</div>
   <h1>AUR Scenario Lab</h1>
-  <p class="lede">The paper prices Aurora across five scenarios — <em>Superbear, Bear, Middle, Bull, Superbull</em> — and its
+  <p class="lede"><a href="https://drive.google.com/file/d/1S2o4P6OiEoBFNFlAB1EZ01V_uikNOUtZ/view?usp=sharing" target="_blank" rel="noopener" style="color:var(--ink); text-decoration:underline; text-underline-offset:2px;">The paper</a> prices Aurora across five scenarios — <em>Superbear, Bear, Middle, Bull, Superbull</em> — and its
   conclusion hangs on the probabilities you assign them. Disagree with mine? Set your own vector below and the tool regenerates
   Figures 20–23 with your numbers.</p>
   <div class="byline">Compiled by u/Due-Perspective-3197 · Not investment advice</div>
+  <div><a class="paperlink" href="https://drive.google.com/file/d/1S2o4P6OiEoBFNFlAB1EZ01V_uikNOUtZ/view?usp=sharing" target="_blank" rel="noopener">Read the full due-diligence paper (97-page PDF) →</a></div>
 
   <!-- ============ CONTROLS ============ -->
   <div class="card" id="controls">
@@ -233,7 +236,7 @@
   </div>
 
   <div class="foot">
-    An interactive companion to <em>Aurora Innovation at the Inflection Point</em> (investment due diligence, v2.7, August 2026),
+    An interactive companion to <a href="https://drive.google.com/file/d/1S2o4P6OiEoBFNFlAB1EZ01V_uikNOUtZ/view?usp=sharing" target="_blank" rel="noopener" style="color:var(--muted);"><em>Aurora Innovation at the Inflection Point</em></a> (investment due diligence, v2.7, August 2026),
     compiled by u/Due-Perspective-3197, who holds 5,000 AUR shares at a $6.04 average cost. All scenario economics are the
     paper's illustrative, contestable assumptions — that's the point of this tool. Nothing here is investment advice; Aurora is a
     pre-revenue-scale company and the range of outcomes includes substantial or total loss of capital.
