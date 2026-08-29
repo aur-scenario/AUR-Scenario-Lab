@@ -1,0 +1,543 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AUR Scenario Lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap">
+<style>
+  :root{
+    --paper:#f5f3ec; --card:#fdfcf9; --card-edge:#e3e1d8; --ink:#14171c; --ink2:#3d3c38;
+    --muted:#6b6a64; --faint:#95938b; --blue:#2a78d6; --orange:#eb6834;
+    --sbear:#c73535; --bear:#e08a3c; --mid:#2a78d6; --bull:#12a312; --sbull:#0e7038;
+    --good:#0e7a3d; --warn:#a05a00;
+    --serif:"Source Serif 4", Georgia, "Times New Roman", serif;
+    --sans:"Archivo", "Helvetica Neue", Arial, sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{background:var(--paper); color:var(--ink); font-family:var(--serif); margin:0; line-height:1.55;
+       -webkit-font-smoothing:antialiased;}
+  .wrap{max-width:880px; margin:0 auto; padding:28px 18px 80px;}
+  .kicker{font-family:var(--sans); font-weight:700; font-size:11px; letter-spacing:.14em; color:var(--orange); text-transform:uppercase;}
+  h1{font-family:var(--sans); font-weight:800; font-size:clamp(30px,6vw,44px); letter-spacing:-.02em; margin:6px 0 10px; text-wrap:balance;}
+  .lede{font-size:17px; color:var(--ink2); max-width:62ch; margin:0 0 6px;}
+  .byline{font-family:var(--sans); font-size:12px; color:var(--faint); letter-spacing:.06em; text-transform:uppercase; margin-bottom:26px;}
+  .card{background:var(--card); border:1px solid var(--card-edge); border-radius:6px; padding:18px 20px; margin:18px 0;}
+  .fig-kicker{font-family:var(--sans); font-weight:700; font-size:10.5px; letter-spacing:.12em; color:var(--orange); text-transform:uppercase;}
+  .fig-title{font-family:var(--sans); font-weight:700; font-size:19px; margin:2px 0 2px; letter-spacing:-.01em;}
+  .fig-sub{font-size:14px; color:var(--muted); margin:0 0 12px;}
+  .fig-src{font-size:12.5px; color:var(--muted); border-top:1px solid var(--card-edge); margin-top:14px; padding-top:10px;}
+  /* controls */
+  .ctl-row{display:grid; grid-template-columns:14px 108px 1fr 64px; gap:10px; align-items:center; padding:7px 0;}
+  .chip{width:14px; height:14px; border-radius:3px;}
+  .ctl-name{font-family:var(--sans); font-weight:600; font-size:13.5px;}
+  .ctl-val{font-size:11.5px; color:var(--faint); font-family:var(--sans);}
+  input[type=range]{width:100%; accent-color:var(--ink); height:22px;}
+  input[type=number]{font-family:var(--sans); font-variant-numeric:tabular-nums; font-size:14px; width:100%;
+    padding:5px 6px; border:1px solid var(--card-edge); border-radius:4px; background:#fff; color:var(--ink); text-align:right;}
+  input[type=number]:focus,input[type=range]:focus-visible,button:focus-visible{outline:2px solid var(--blue); outline-offset:1px;}
+  .sumline{display:flex; flex-wrap:wrap; align-items:center; gap:10px; margin-top:12px; padding-top:12px; border-top:1px solid var(--card-edge); font-family:var(--sans); font-size:13px;}
+  .sum-ok{color:var(--good); font-weight:700;}
+  .sum-warn{color:var(--warn); font-weight:700;}
+  button{font-family:var(--sans); font-weight:600; font-size:13px; padding:7px 12px; border-radius:4px;
+    border:1px solid var(--card-edge); background:#fff; color:var(--ink); cursor:pointer;}
+  button:hover{border-color:var(--ink);}
+  button.primary{background:var(--ink); border-color:var(--ink); color:#fff;}
+  .presets{display:flex; flex-wrap:wrap; gap:8px; margin-top:10px;}
+  .presets button{font-weight:500; font-size:12.5px; padding:5px 10px;}
+  details{margin-top:12px; font-size:13.5px;}
+  summary{font-family:var(--sans); font-weight:600; font-size:13px; cursor:pointer; color:var(--ink2);}
+  .adv{display:grid; grid-template-columns:repeat(auto-fit,minmax(110px,1fr)); gap:10px; margin-top:10px;}
+  .adv label{font-family:var(--sans); font-size:11px; color:var(--muted); display:block; letter-spacing:.04em; text-transform:uppercase;}
+  /* hero */
+  .hero{display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:12px;}
+  .tile{background:var(--card); border:1px solid var(--card-edge); border-radius:6px; padding:14px 16px;}
+  .t-label{font-family:var(--sans); font-size:10.5px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--muted);}
+  .t-value{font-family:var(--sans); font-weight:800; font-size:30px; letter-spacing:-.02em; font-variant-numeric:tabular-nums; margin:2px 0;}
+  .t-note{font-size:12px; color:var(--muted);}
+  /* tables */
+  .tblwrap{overflow-x:auto;}
+  table{border-collapse:collapse; width:100%; font-size:13.5px; min-width:560px;}
+  th{font-family:var(--sans); font-size:11px; letter-spacing:.06em; text-transform:uppercase; text-align:left;
+     background:var(--ink); color:#fff; padding:7px 9px; font-weight:600;}
+  th.num,td.num{text-align:right; font-variant-numeric:tabular-nums;}
+  td{padding:7px 9px; border-bottom:1px solid var(--card-edge);}
+  td.rowhead{font-family:var(--sans); font-weight:600; font-size:13px; white-space:nowrap;}
+  tr.you td{background:#f2f7f2;}
+  td .dot{display:inline-block; width:9px; height:9px; border-radius:2px; margin-right:7px; vertical-align:baseline;}
+  .eline{font-family:var(--sans); font-size:14px; margin-top:10px;}
+  .eline strong{font-size:16px;}
+  /* charts */
+  .chartcard{background:#fff; border:1px solid var(--card-edge); border-radius:6px; padding:10px 8px 4px; position:relative;}
+  svg{display:block; width:100%; height:auto;}
+  svg text{font-family:var(--sans);}
+  .tip{position:absolute; pointer-events:none; background:var(--ink); color:#fff; font-family:var(--sans);
+       font-size:12px; line-height:1.45; padding:7px 10px; border-radius:5px; opacity:0; transition:opacity .12s;
+       max-width:230px; z-index:5;}
+  @media (prefers-reduced-motion: reduce){ .tip{transition:none} }
+  .legend{display:flex; gap:16px; flex-wrap:wrap; font-family:var(--sans); font-size:12px; color:var(--ink2); padding:4px 8px 8px;}
+  .legend span{display:inline-flex; align-items:center; gap:6px;}
+  .legend i{width:10px; height:10px; border-radius:2px; display:inline-block;}
+  /* share */
+  .share textarea{width:100%; font-family:var(--sans); font-size:13px; padding:10px; border:1px solid var(--card-edge);
+    border-radius:4px; background:#fff; color:var(--ink); resize:vertical; min-height:74px;}
+  .sharebtns{display:flex; gap:10px; margin-top:10px; flex-wrap:wrap;}
+  .foot{font-size:12.5px; color:var(--muted); margin-top:30px; border-top:1px solid var(--card-edge); padding-top:14px;}
+  .copied{color:var(--good); font-family:var(--sans); font-size:12.5px; align-self:center;}
+  @media(max-width:560px){ .ctl-row{grid-template-columns:12px 86px 1fr 56px;} }
+</style>
+
+<div class="wrap">
+  <div class="kicker">Aurora Innovation (NASDAQ: AUR) · Interactive companion to the due-diligence paper</div>
+  <h1>AUR Scenario Lab</h1>
+  <p class="lede">The paper prices Aurora across five scenarios — <em>Superbear, Bear, Middle, Bull, Superbull</em> — and its
+  conclusion hangs on the probabilities you assign them. Disagree with mine? Set your own vector below and the tool regenerates
+  Figures 20–23 with your numbers.</p>
+  <div class="byline">Compiled by u/Due-Perspective-3197 · Not investment advice</div>
+
+  <!-- ============ CONTROLS ============ -->
+  <div class="card" id="controls">
+    <div class="fig-kicker">Your probability vector</div>
+    <div class="fig-title">Assign your five probabilities</div>
+    <p class="fig-sub">They should sum to 100%. If they don't, the figures use your weights normalized to 100.</p>
+    <div id="ctls"></div>
+    <div class="sumline">
+      <span id="sumBadge"></span>
+      <button id="normBtn" type="button">Normalize to 100</button>
+      <span class="ctl-val" id="normNote"></span>
+    </div>
+    <div class="presets" id="presets"></div>
+    <details>
+      <summary>Advanced: scenario per-share values &amp; price</summary>
+      <p class="fig-sub" style="margin-top:8px">Midpoint 2031 per-share values by scenario (the paper's: $0.50 / $2.00 / $7.80 / $23.75 / $40) and the reference share price ($5.77, the Aug 25, 2026 close).</p>
+      <div class="adv" id="adv"></div>
+    </details>
+  </div>
+
+  <!-- ============ HERO ============ -->
+  <div class="hero">
+    <div class="tile"><div class="t-label">Your E[2031]</div><div class="t-value" id="heroE">–</div><div class="t-note" id="heroEnote"></div></div>
+    <div class="tile"><div class="t-label">Vs. share price</div><div class="t-value" id="heroX">–</div><div class="t-note" id="heroXnote"></div></div>
+    <div class="tile"><div class="t-label">Annualized to 2031</div><div class="t-value" id="heroA">–</div><div class="t-note">Expected return implied by your vector</div></div>
+    <div class="tile"><div class="t-label">Vs. the paper</div><div class="t-value" id="heroD">–</div><div class="t-note" id="heroDnote"></div></div>
+  </div>
+
+  <!-- ============ FIG 20 ============ -->
+  <div class="card">
+    <div class="fig-kicker">Figure 20 · reference</div>
+    <div class="fig-title">Illustrative revenue scenarios, 2031 and 2036</div>
+    <p class="fig-sub">What each scenario assumes operationally. These don't change with your vector — they're what you're weighting.</p>
+    <div class="chartcard" id="fig20wrap"><div class="legend">
+      <span><i style="background:var(--blue)"></i>2031 revenue</span>
+      <span><i style="background:var(--orange)"></i>2036 revenue</span>
+    </div><svg id="fig20" viewBox="0 0 672 300" role="img" aria-label="Bar chart of illustrative 2031 and 2036 revenue by scenario"></svg><div class="tip" id="tip20"></div></div>
+    <div class="tblwrap" style="margin-top:12px"><table>
+      <thead><tr><th>Scenario</th><th class="num">2031 trucks</th><th class="num">2031 revenue</th><th class="num">2036 trucks</th><th class="num">2036 revenue</th></tr></thead>
+      <tbody>
+        <tr><td class="rowhead"><span class="dot" style="background:var(--bear)"></span>Bear</td><td class="num">7,500</td><td class="num">$1.35B</td><td class="num">20,000</td><td class="num">$4.0B</td></tr>
+        <tr><td class="rowhead"><span class="dot" style="background:var(--mid)"></span>Middle</td><td class="num">15,000</td><td class="num">$3.0B</td><td class="num">50,000</td><td class="num">$11.25B</td></tr>
+        <tr><td class="rowhead"><span class="dot" style="background:var(--bull)"></span>Bull</td><td class="num">30,000</td><td class="num">$6.75B</td><td class="num">100,000</td><td class="num">$25.0B</td></tr>
+        <tr><td class="rowhead"><span class="dot" style="background:var(--sbull)"></span>Superbull</td><td class="num">45,000</td><td class="num">$8.1B</td><td class="num">225,000</td><td class="num">$39.4B</td></tr>
+      </tbody>
+    </table></div>
+    <div class="fig-src">Superbear is a wind-down (&lt;$0.3B revenue; equity settles toward cash-adjusted option value), so it has no bars. Author's illustrative scenarios at $180k–$250k Aurora revenue per mature deployed truck. Not price targets; not company guidance.</div>
+  </div>
+
+  <!-- ============ FIG 21 ============ -->
+  <div class="card">
+    <div class="fig-kicker">Figure 21 · yours</div>
+    <div class="fig-title">The valuation bridge: 2031 scenarios to per-share values</div>
+    <p class="fig-sub">The paper's scenario economics, weighted by <em>your</em> probabilities.</p>
+    <div class="tblwrap"><table id="fig21"></table></div>
+    <div class="eline" id="fig21e"></div>
+    <div class="fig-src">Per-share values are horizon values, deliberately not additionally discounted — probability-weighting the Superbear branch already carries the risk adjustment (doing both would double-count). Scenario economics from the paper: revenue × EV/S multiple ÷ diluted shares. Every formula is written out in "Under the hood," below.</div>
+  </div>
+
+  <!-- ============ FIG 22 ============ -->
+  <div class="card">
+    <div class="fig-kicker">Figure 22 · yours vs. the paper</div>
+    <div class="fig-title">Alternative probability vectors — argue with the inputs, not the output</div>
+    <p class="fig-sub">Your vector against the paper's, its stricter base-rate anchor, and the crash vector.</p>
+    <div class="tblwrap"><table id="fig22"></table></div>
+    <div class="fig-src">The base-rate anchor prices the industry's historical failure rate (roughly half of U.S. AV-trucking programs since 2015 are dead or exited). The bear shift is what the paper pre-commits to if its tripwires trip.</div>
+  </div>
+
+  <!-- ============ FIG 23 ============ -->
+  <div class="card">
+    <div class="fig-kicker">Figure 23 · yours</div>
+    <div class="fig-title">The de-risking path: how your probability mass migrates, 2026–28</div>
+    <p class="fig-sub">Starting from your vector, mass moves at each pre-committed checkpoint if milestones keep landing. Hover a checkpoint for the vector.</p>
+    <div class="chartcard" id="fig23wrap"><svg id="fig23" viewBox="0 0 672 320" role="img" aria-label="Stacked area chart of scenario probabilities migrating across five checkpoints"></svg><div class="tip" id="tip23"></div></div>
+    <div class="legend" id="leg23"></div>
+    <div class="fig-src" id="fig23src"></div>
+  </div>
+
+  <!-- ============ METHODOLOGY ============ -->
+  <div class="card">
+    <div class="fig-kicker">Under the hood</div>
+    <div class="fig-title">Every formula this page uses</div>
+    <p class="fig-sub">Nothing is hidden — the tool does four small computations, all from the paper's Section 7 machinery.</p>
+
+    <h4 style="font-family:var(--sans); font-size:14px; margin:14px 0 4px;">1 · Your weights</h4>
+    <p style="font-size:14px; margin:0;">If your five percentages don't sum to 100, each is divided by the total so they do:
+    <code style="font-family:var(--sans); font-size:12.5px; background:#f0eee6; padding:2px 6px; border-radius:3px;">weight = your % ÷ sum of all five</code>.
+    Everything downstream uses the normalized weights.</p>
+
+    <h4 style="font-family:var(--sans); font-size:14px; margin:14px 0 4px;">2 · Scenario per-share values (editable under "Advanced")</h4>
+    <p style="font-size:14px; margin:0 0 6px;">Each scenario's 2031 per-share value comes from the paper's valuation bridge (Figure 21):
+    <code style="font-family:var(--sans); font-size:12.5px; background:#f0eee6; padding:2px 6px; border-radius:3px;">per-share = (2031 revenue × EV/S multiple) ÷ diluted shares</code>,
+    then the midpoint of the resulting range is used:</p>
+    <div class="tblwrap"><table style="min-width:480px;">
+      <thead><tr><th>Scenario</th><th class="num">Revenue</th><th class="num">Multiple</th><th class="num">÷ Shares</th><th class="num">Range</th><th class="num">Midpoint used</th></tr></thead>
+      <tbody>
+      <tr><td class="rowhead">Superbear</td><td class="num">&lt;$0.3B</td><td class="num">—</td><td class="num">—</td><td class="num">$0–2</td><td class="num">$0.50</td></tr>
+      <tr><td class="rowhead">Bear</td><td class="num">$1.35B</td><td class="num">3–5×</td><td class="num">~2.7B</td><td class="num">$1.50–2.50</td><td class="num">$2.00</td></tr>
+      <tr><td class="rowhead">Middle</td><td class="num">$3.0B</td><td class="num">5–8×</td><td class="num">~2.5B</td><td class="num">$6.00–9.60</td><td class="num">$7.80</td></tr>
+      <tr><td class="rowhead">Bull</td><td class="num">$6.75B</td><td class="num">7–10×</td><td class="num">~2.4B</td><td class="num">$19.60–27.90</td><td class="num">$23.75</td></tr>
+      <tr><td class="rowhead">Superbull</td><td class="num">$8.1B</td><td class="num">10–15×</td><td class="num">~2.4B</td><td class="num">$34–51</td><td class="num">$40.00</td></tr>
+      </tbody>
+    </table></div>
+    <p style="font-size:13px; color:var(--muted); margin:6px 0 0;">Why Superbear isn't zero: even a wind-down leaves cash and salable assets — the equity settles toward
+    cash-adjusted option value, not nothing. Why diluted share counts differ by scenario: weaker execution means more equity issued at lower prices (the paper's Section 8 funding bridge).</p>
+
+    <h4 style="font-family:var(--sans); font-size:14px; margin:14px 0 4px;">3 · Expected value, multiple, and annualized return</h4>
+    <p style="font-size:14px; margin:0;">
+    <code style="font-family:var(--sans); font-size:12.5px; background:#f0eee6; padding:2px 6px; border-radius:3px;">E[2031] = sum of (weight × value) across the five scenarios</code>.
+    The multiple is <code style="font-family:var(--sans); font-size:12.5px; background:#f0eee6; padding:2px 6px; border-radius:3px;">E[2031] ÷ share price</code> ($5.77 unless you change it), and the annualized figure solves
+    <code style="font-family:var(--sans); font-size:12.5px; background:#f0eee6; padding:2px 6px; border-radius:3px;">multiple^(1/5.35) − 1</code> — 5.35 years from late August 2026 to year-end 2031.
+    Deliberately <em>not</em> applied: a discount rate. Probability-weighting the Superbear branch already carries the risk adjustment; discounting on top would count risk twice. If you prefer discounted numbers, mentally shave ~2–3% a year off the annualized figure as a time-value haircut.</p>
+
+    <h4 style="font-family:var(--sans); font-size:14px; margin:14px 0 4px;">4 · The migration path (Figure 23)</h4>
+    <p style="font-size:14px; margin:0;">The 2028 endpoint applies the paper's pre-committed de-risking rule to <em>your</em> starting vector:
+    <code style="font-family:var(--sans); font-size:12.5px; background:#f0eee6; padding:2px 6px; border-radius:3px;">Superbear × 0.4 · Bear × 0.6 · Bull × 1.4 · Superbull × 1.4</code>,
+    with Middle absorbing whatever keeps the total at 100 (gains are scaled back if Middle would go negative). The three intermediate checkpoints
+    are straight-line interpolations between your vector and that endpoint, and E[V] is recomputed at each one with the same formula as above.
+    The rule reproduces the paper's own path exactly: 5/10/55/20/10 → 2/6/50/28/14. It is what "milestones keep landing" is assumed to be worth;
+    a tripped wire instead jumps to the bear-shift vector (45/30/20/5/0).</p>
+
+    <h4 style="font-family:var(--sans); font-size:14px; margin:14px 0 4px;">5 · What this tool deliberately does not compute</h4>
+    <p style="font-size:14px; margin:0;">Path probabilities between now and 2031 (a scenario reached early or late), correlation between your probabilities and the share counts,
+    and any view on entry timing. The scenario economics themselves — revenue per truck, multiples, share counts — are the paper's illustrative,
+    contestable assumptions; this page's job is to make the <em>probability</em> disagreement explicit, because that is where most arguments about AUR actually live.</p>
+  </div>
+
+  <!-- ============ SHARE ============ -->
+  <div class="card share">
+    <div class="fig-kicker">Share it</div>
+    <div class="fig-title">Post your vector</div>
+    <p class="fig-sub">The link carries your exact settings — anyone who opens it sees your version of the figures.</p>
+    <textarea id="shareText" readonly aria-label="Shareable summary of your vector"></textarea>
+    <div class="sharebtns">
+      <button class="primary" id="copyAll" type="button">Copy text + link</button>
+      <button id="copyLink" type="button">Copy link only</button>
+      <span class="copied" id="copied"></span>
+    </div>
+  </div>
+
+  <div class="foot">
+    An interactive companion to <em>Aurora Innovation at the Inflection Point</em> (investment due diligence, v2.7, August 2026),
+    compiled by u/Due-Perspective-3197, who holds 5,000 AUR shares at a $6.04 average cost. All scenario economics are the
+    paper's illustrative, contestable assumptions — that's the point of this tool. Nothing here is investment advice; Aurora is a
+    pre-revenue-scale company and the range of outcomes includes substantial or total loss of capital.
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  const S = [
+    {key:'sbear', name:'Superbear', color:'var(--sbear)', hex:'#c73535', desc:'wind-down; ~$0.50'},
+    {key:'bear',  name:'Bear',      color:'var(--bear)',  hex:'#e08a3c', desc:'niche; ~$2.00'},
+    {key:'mid',   name:'Middle',    color:'var(--mid)',   hex:'#2a78d6', desc:'dominant platform; ~$7.80'},
+    {key:'bull',  name:'Bull',      color:'var(--bull)',  hex:'#12a312', desc:'winner-take-most; ~$23.75'},
+    {key:'sbull', name:'Superbull', color:'var(--sbull)', hex:'#0e7038', desc:'45k trucks by ’31; ~$40'}
+  ];
+  const DEF = {p:[5,10,55,20,10], v:[0.5,2,7.8,23.75,40], price:5.77, years:5.35};
+  const AUTHOR=[5,10,55,20,10], ANCHOR=[30,25,30,15,0], CRASH=[45,30,20,5,0];
+  const CHECKPOINTS = [
+    ['Today','Aug 2026'], ['200 trucks confirmed','Q4’26 letter, Feb 2027'],
+    ['Binding DaaS + Volvo','H1 2027'], ['Utilization data','End 2027'],
+    ['FCF positive','2028']
+  ];
+  const REV = {labels:['Bear','Middle','Bull','Superbull'], colors:['#e08a3c','#2a78d6','#12a312','#0e7038'],
+               r31:[1.35,3.0,6.75,8.1], r36:[4.0,11.25,25.0,39.4],
+               trucks:['7.5k → 20k','15k → 50k','30k → 100k','45k → 225k']};
+  const BRIDGE = [
+    {rev:'<$0.3B', mult:'—', ev:'—', sh:'—', ps:'$0–2 (~$0.50)'},
+    {rev:'$1.35B', mult:'3–5×', ev:'$4.0–6.75B', sh:'~2.7B', ps:'$1.50–2.50'},
+    {rev:'$3.0B',  mult:'5–8×', ev:'$15–24B',   sh:'~2.5B', ps:'$6.00–9.60'},
+    {rev:'$6.75B', mult:'7–10×', ev:'$47–67B',  sh:'~2.4B', ps:'$19.60–27.90'},
+    {rev:'$8.1B',  mult:'10–15×', ev:'$81–122B', sh:'~2.4B', ps:'$34–51 (~$40)'}
+  ];
+  let p = DEF.p.slice(), vals = DEF.v.slice(), price = DEF.price;
+
+  // ---------- state io ----------
+  function readHash(){
+    const m = location.hash.match(/v=([\d.]+(?:,[\d.]+){4})/);
+    if(m){ const a = m[1].split(',').map(Number); if(a.every(x=>isFinite(x)&&x>=0&&x<=100)) return a; }
+    return null;
+  }
+  function store(){ try{ localStorage.setItem('aurlab', JSON.stringify({p:p,v:vals,price:price})); }catch(e){} }
+  function load(){
+    const h = readHash(); if(h){ p = h; return; }
+    try{ const s = JSON.parse(localStorage.getItem('aurlab')||'null');
+      if(s && Array.isArray(s.p) && s.p.length===5){ p=s.p.map(Number); if(Array.isArray(s.v)&&s.v.length===5) vals=s.v.map(Number); if(isFinite(s.price)) price=+s.price; } }catch(e){}
+  }
+  let hashT;
+  function writeHash(){ clearTimeout(hashT); hashT = setTimeout(()=>{ history.replaceState(null,'','#v='+p.join(',')); }, 250); }
+
+  // ---------- math ----------
+  const sum = a => a.reduce((x,y)=>x+y,0);
+  function shares(){ const t = sum(p); return t>0 ? p.map(x=>x/t) : [0,0,1,0,0]; }
+  function EV(probArr, values){ const t = sum(probArr); if(t<=0) return 0;
+    return probArr.reduce((acc,pr,i)=>acc + (pr/t)*(values||vals)[i], 0); }
+  function endpoint(w){ // w = normalized shares ×100
+    let sb=w[0]*0.4, b=w[1]*0.6, bu=w[3]*1.4, su=w[4]*1.4;
+    let m = 100 - sb - b - bu - su;
+    if(m < 0){ const room = 100 - sb - b, tot = bu+su; if(tot>0){ bu*=room/tot; su*=room/tot; } m = 0; }
+    return [sb,b,m,bu,su];
+  }
+  const fm = x => '$'+x.toFixed(2);
+  const pc = x => (Math.round(x*10)/10).toFixed(1).replace(/\.0$/,'')+'%';
+
+  // ---------- controls ----------
+  const ctls = document.getElementById('ctls');
+  S.forEach((s,i)=>{
+    const row = document.createElement('div'); row.className='ctl-row';
+    row.innerHTML = '<span class="chip" style="background:'+s.color+'"></span>'+
+      '<span><span class="ctl-name">'+s.name+'</span><br><span class="ctl-val">'+s.desc+'</span></span>'+
+      '<input type="range" min="0" max="100" step="1" id="r'+i+'" aria-label="'+s.name+' probability slider">'+
+      '<input type="number" min="0" max="100" step="1" id="n'+i+'" aria-label="'+s.name+' probability percent">';
+    ctls.appendChild(row);
+  });
+  function bind(){
+    S.forEach((s,i)=>{
+      document.getElementById('r'+i).addEventListener('input', e=>{ p[i]=+e.target.value; sync(); });
+      document.getElementById('n'+i).addEventListener('input', e=>{ const v=+e.target.value; if(isFinite(v)) p[i]=Math.max(0,Math.min(100,v)); sync(false); });
+    });
+  }
+  function reflect(){
+    S.forEach((s,i)=>{ document.getElementById('r'+i).value = p[i]; document.getElementById('n'+i).value = p[i]; });
+  }
+  document.getElementById('normBtn').addEventListener('click', ()=>{
+    const t = sum(p); if(t<=0) return;
+    p = p.map(x=>Math.round(x/t*100));
+    let d = 100 - sum(p); p[p.indexOf(Math.max(...p))] += d;
+    sync();
+  });
+  const PRESETS = [
+    ['Author (the paper)', AUTHOR], ['Base-rate anchor', ANCHOR], ['Bear shift', CRASH], ['Flat 20s', [20,20,20,20,20]]
+  ];
+  const pr = document.getElementById('presets');
+  PRESETS.forEach(([label, vec])=>{
+    const b = document.createElement('button'); b.type='button'; b.textContent = label;
+    b.addEventListener('click', ()=>{ p = vec.slice(); sync(); }); pr.appendChild(b);
+  });
+  // advanced
+  const adv = document.getElementById('adv');
+  S.forEach((s,i)=>{
+    const d = document.createElement('div');
+    d.innerHTML = '<label for="v'+i+'">'+s.name+' $/sh</label><input type="number" step="0.05" min="0" id="v'+i+'">';
+    adv.appendChild(d);
+  });
+  const dp = document.createElement('div');
+  dp.innerHTML = '<label for="vp">Share price $</label><input type="number" step="0.01" min="0.01" id="vp">';
+  adv.appendChild(dp);
+  function bindAdv(){
+    S.forEach((s,i)=>{ const el=document.getElementById('v'+i);
+      el.addEventListener('input', e=>{ const v=+e.target.value; if(isFinite(v)&&v>=0){ vals[i]=v; render(); store(); } }); });
+    document.getElementById('vp').addEventListener('input', e=>{ const v=+e.target.value; if(isFinite(v)&&v>0){ price=v; render(); store(); } });
+  }
+  function reflectAdv(){ S.forEach((s,i)=>{ document.getElementById('v'+i).value = vals[i]; }); document.getElementById('vp').value = price; }
+
+  function sync(alsoReflect){ if(alsoReflect!==false) reflect(); render(); store(); writeHash(); }
+
+  // ---------- render ----------
+  function render(){
+    const t = sum(p), w = shares().map(x=>x*100);
+    const badge = document.getElementById('sumBadge');
+    if(Math.abs(t-100) < 0.01){ badge.className='sum-ok'; badge.textContent='Sums to 100% ✓'; document.getElementById('normNote').textContent=''; }
+    else { badge.className='sum-warn'; badge.textContent='Sums to '+(Math.round(t*10)/10)+'%'; document.getElementById('normNote').textContent='Figures use your weights scaled to 100.'; }
+
+    const e = EV(p), eA = EV(AUTHOR), eN = EV(ANCHOR);
+    const x = e/price, ann = Math.pow(Math.max(x,1e-9), 1/DEF.years) - 1;
+    document.getElementById('heroE').textContent = fm(e);
+    document.getElementById('heroEnote').textContent = 'Probability-weighted 2031 value per share';
+    document.getElementById('heroX').textContent = (Math.round(x*100)/100).toFixed(2)+'×';
+    document.getElementById('heroXnote').textContent = 'Against the $'+price.toFixed(2)+' reference price';
+    document.getElementById('heroA').textContent = (ann>=0?'+':'')+(ann*100).toFixed(1)+'%/yr';
+    const d = e - eA;
+    document.getElementById('heroD').textContent = (d>=0?'+':'−')+'$'+Math.abs(d).toFixed(2);
+    document.getElementById('heroDnote').textContent = 'Paper’s vector: '+fm(eA)+' · base-rate anchor: '+fm(eN);
+
+    renderFig20(); renderFig21(w, e, x, ann); renderFig22(); renderFig23(w);
+    renderShare(e, x, ann);
+  }
+
+  // ----- fig 20: grouped bars -----
+  function renderFig20(){
+    const svg = document.getElementById('fig20'); const W=672, H=300, L=64, R=16, T=26, B=44;
+    const max=40, py = v => T + (H-T-B)*(1 - v/max);
+    let g = '';
+    for(let gv=0; gv<=40; gv+=10){
+      g += '<line x1="'+L+'" y1="'+py(gv)+'" x2="'+(W-R)+'" y2="'+py(gv)+'" stroke="#e8e6dd" stroke-width="1"/>' +
+           '<text x="'+(L-8)+'" y="'+(py(gv)+4)+'" font-size="11" fill="#95938b" text-anchor="end">$'+gv+'B</text>';
+    }
+    const n = REV.labels.length, span=(W-L-R)/n, bw=34;
+    REV.labels.forEach((lab,i)=>{
+      const cx = L + span*i + span/2;
+      const x1 = cx - bw - 1, x2 = cx + 1;
+      const y1 = py(REV.r31[i]), y2 = py(REV.r36[i]), y0 = py(0);
+      g += '<rect class="b20" data-i="'+i+'" data-k="2031" x="'+x1+'" y="'+y1+'" width="'+bw+'" height="'+(y0-y1)+'" rx="3" fill="#2a78d6"/>';
+      g += '<rect class="b20" data-i="'+i+'" data-k="2036" x="'+x2+'" y="'+y2+'" width="'+bw+'" height="'+(y0-y2)+'" rx="3" fill="#eb6834"/>';
+      g += '<text x="'+(x1+bw/2)+'" y="'+(y1-5)+'" font-size="10.5" font-weight="700" fill="#14171c" text-anchor="middle">$'+REV.r31[i]+'B</text>';
+      g += '<text x="'+(x2+bw/2)+'" y="'+(y2-5)+'" font-size="10.5" font-weight="700" fill="#14171c" text-anchor="middle">$'+REV.r36[i]+'B</text>';
+      g += '<text x="'+cx+'" y="'+(H-24)+'" font-size="12" font-weight="600" fill="#3d3c38" text-anchor="middle">'+lab+'</text>';
+      g += '<text x="'+cx+'" y="'+(H-10)+'" font-size="10" fill="#95938b" text-anchor="middle">'+REV.trucks[i]+' trucks</text>';
+    });
+    g += '<line x1="'+L+'" y1="'+py(0)+'" x2="'+(W-R)+'" y2="'+py(0)+'" stroke="#c9c7bd" stroke-width="1"/>';
+    svg.innerHTML = g;
+    hover20();
+  }
+  function hover20(){
+    const tip = document.getElementById('tip20'), wrap = document.getElementById('fig20wrap');
+    wrap.querySelectorAll('.b20').forEach(r=>{
+      r.addEventListener('mousemove', ev=>{
+        const i=+r.dataset.i, k=r.dataset.k;
+        tip.innerHTML = '<strong>'+REV.labels[i]+' · '+k+'</strong><br>Revenue: $'+(k==='2031'?REV.r31[i]:REV.r36[i])+'B<br>'+REV.trucks[i]+' trucks ’31→’36';
+        const b = wrap.getBoundingClientRect();
+        tip.style.left = Math.min(ev.clientX-b.left+14, b.width-190)+'px';
+        tip.style.top = (ev.clientY-b.top-14)+'px'; tip.style.opacity=1;
+      });
+      r.addEventListener('mouseleave', ()=>{ tip.style.opacity=0; });
+    });
+  }
+
+  // ----- fig 21: bridge table -----
+  function renderFig21(w, e, x, ann){
+    const tb = document.getElementById('fig21');
+    let h = '<thead><tr><th>Scenario</th><th class="num">Your probability</th><th class="num">2031 revenue</th><th class="num">EV/S</th><th class="num">Implied EV</th><th class="num">Diluted shares</th><th class="num">2031 per-share</th></tr></thead><tbody>';
+    S.forEach((s,i)=>{
+      h += '<tr><td class="rowhead"><span class="dot" style="background:'+s.color+'"></span>'+s.name+'</td>'+
+        '<td class="num"><strong>'+pc(w[i])+'</strong></td>'+
+        '<td class="num">'+BRIDGE[i].rev+'</td><td class="num">'+BRIDGE[i].mult+'</td><td class="num">'+BRIDGE[i].ev+'</td>'+
+        '<td class="num">'+BRIDGE[i].sh+'</td><td class="num">'+BRIDGE[i].ps+'</td></tr>';
+    });
+    tb.innerHTML = h + '</tbody>';
+    document.getElementById('fig21e').innerHTML =
+      'Probability-weighted expected 2031 value at scenario midpoints ≈ <strong>'+fm(e)+' per share</strong> — ' +
+      (Math.round(x*100)/100).toFixed(2)+'× the $'+price.toFixed(2)+' reference price, ' +
+      ((ann>=0?'+':'')+(ann*100).toFixed(1))+'% annualized to 2031.';
+  }
+
+  // ----- fig 22: vectors table -----
+  function renderFig22(){
+    const rows = [
+      ['Your vector', shares().map(x=>x*100), true],
+      ['The paper (author’s vector)', AUTHOR, false],
+      ['Stricter base-rate anchor', ANCHOR, false],
+      ['If wires trip (bear shift)', CRASH, false]
+    ];
+    let h = '<thead><tr><th>Vector</th><th class="num">Superbear</th><th class="num">Bear</th><th class="num">Middle</th><th class="num">Bull</th><th class="num">Superbull</th><th class="num">E[2031/sh]</th></tr></thead><tbody>';
+    rows.forEach(([name, vec, you])=>{
+      h += '<tr'+(you?' class="you"':'')+'><td class="rowhead">'+name+'</td>' +
+        vec.map(v=>'<td class="num">'+pc(v)+'</td>').join('') +
+        '<td class="num"><strong>'+fm(EV(vec))+'</strong></td></tr>';
+    });
+    document.getElementById('fig22').innerHTML = h + '</tbody>';
+  }
+
+  // ----- fig 23: migration stacked area -----
+  function renderFig23(w){
+    const svg = document.getElementById('fig23'); const W=672, H=320;
+    const T=44, B=64, L=64, R=16, plotH = H-T-B;
+    const start = w, end = endpoint(w);
+    const steps = [0,0.25,0.5,0.75,1].map(t => start.map((s,i)=> s + (end[i]-s)*t ));
+    const evs = steps.map(v => EV(v));
+    const xs = steps.map((_,k)=> L + (W-L-R)*k/4);
+    const py = c => T + plotH*(1 - c/100);
+    // stack order bottom-up: sbull, bull, mid, bear, sbear
+    const order = [4,3,2,1,0];
+    const colors = ['#0e7038','#12a312','#2a78d6','#e08a3c','#c73535'];
+    const ops = [0.85,0.55,0.5,0.55,0.5];
+    let cums = steps.map(()=>0), g='';
+    for(let gv=0; gv<=100; gv+=25){
+      g += '<line x1="'+L+'" y1="'+py(gv)+'" x2="'+(W-R)+'" y2="'+py(gv)+'" stroke="#e8e6dd"/>' +
+           '<text x="'+(L-8)+'" y="'+(py(gv)+4)+'" font-size="11" fill="#95938b" text-anchor="end">'+gv+'%</text>';
+    }
+    const bandPaths=[];
+    order.forEach((si,oi)=>{
+      const lo = cums.slice(); const hi = cums.map((c,k)=> c + steps[k][si]); cums = hi;
+      let d = 'M '+xs[0]+' '+py(lo[0]);
+      xs.forEach((x,k)=>{ d += ' L '+x+' '+py(lo[k]); });
+      for(let k=xs.length-1;k>=0;k--){ d += ' L '+xs[k]+' '+py(hi[k]); }
+      d += ' Z';
+      bandPaths.push({d, color:colors[oi], op:ops[oi], si, mid: (py(lo[4])+py(hi[4]))/2, startPct:steps[0][si], endPct:steps[4][si]});
+    });
+    bandPaths.forEach(b=>{ g += '<path d="'+b.d+'" fill="'+b.color+'" fill-opacity="'+b.op+'" stroke="#fdfcf9" stroke-width="1"/>'; });
+    // labels: place at right edge if band >=6pt there, else left edge, else skip (legend covers identity)
+    bandPaths.forEach(b=>{
+      const s = S[b.si];
+      const label = s.name.toUpperCase()+' '+pc(b.startPct)+' → '+pc(b.endPct);
+      if(b.endPct >= 6){
+        g += '<text x="'+(W-R-8)+'" y="'+(b.mid+4)+'" font-size="10.5" font-weight="700" fill="'+(b.si>=3?'#eaf5ea':'#0f2237')+'" text-anchor="end">'+label+'</text>';
+      } else if(b.startPct >= 6){
+        const midL = (py(0)+0, (function(){ // compute left-edge mid for this band
+          return null;})());
+        g += '<text x="'+(L+6)+'" y="'+((function(){ // left mid
+          // recompute left cums for this band
+          let c=0; for(const ob of bandPaths){ if(ob===b) break; c+=steps[0][ob.si]; }
+          return (py(c)+py(c+steps[0][b.si]))/2 + 3.5;})())+'" font-size="10" font-weight="700" fill="#0f2237">'+label+'</text>';
+      }
+    });
+    // EV labels + checkpoint labels + hover targets
+    steps.forEach((v,k)=>{
+      const anch = k===0 ? 'start' : (k===4 ? 'end' : 'middle');
+      const tx = k===0 ? L : (k===4 ? W-R : xs[k]);
+      g += '<text x="'+tx+'" y="'+(T-24)+'" font-size="11.5" font-weight="700" fill="#0f2237" text-anchor="'+anch+'">'+(k===0?'E[V] ':'')+fm(evs[k])+'</text>';
+      g += '<text x="'+tx+'" y="'+(H-40)+'" font-size="10.5" font-weight="600" fill="#3d3c38" text-anchor="'+anch+'">'+CHECKPOINTS[k][0]+'</text>';
+      g += '<text x="'+tx+'" y="'+(H-26)+'" font-size="10" fill="#95938b" text-anchor="'+anch+'">'+CHECKPOINTS[k][1]+'</text>';
+      g += '<rect class="cp23" data-k="'+k+'" x="'+(xs[k]-(W-L-R)/8)+'" y="'+T+'" width="'+((W-L-R)/4)+'" height="'+plotH+'" fill="transparent"/>';
+    });
+    svg.innerHTML = g;
+    document.getElementById('leg23').innerHTML = S.slice().reverse().map(s=>'<span><i style="background:'+s.color+'"></i>'+s.name+'</span>').join('');
+    document.getElementById('fig23src').textContent =
+      'Endpoint rule (the paper’s): milestones landing cut Superbear ×0.4 and Bear ×0.6 and raise Bull and Superbull ×1.4, with Middle absorbing the remainder; checkpoints interpolate. '+
+      'Your expected value rises from '+fm(evs[0])+' to '+fm(evs[4])+' by 2028 purely through de-risking — no scenario’s value changes. A tripped wire runs the bear-shift vector instead ('+fm(EV(CRASH))+').';
+    // hover
+    const tip = document.getElementById('tip23'), wrap = document.getElementById('fig23wrap');
+    wrap.querySelectorAll('.cp23').forEach(r=>{
+      r.addEventListener('mousemove', ev=>{
+        const k=+r.dataset.k, v=steps[k];
+        tip.innerHTML = '<strong>'+CHECKPOINTS[k][0]+'</strong> ('+CHECKPOINTS[k][1]+')<br>' +
+          S.map((s,i)=>s.name+': '+pc(v[i])).join('<br>') + '<br><strong>E[V] '+fm(evs[k])+'</strong>';
+        const b = wrap.getBoundingClientRect();
+        tip.style.left = Math.min(ev.clientX-b.left+14, b.width-200)+'px';
+        tip.style.top = Math.max(ev.clientY-b.top-120, 4)+'px'; tip.style.opacity=1;
+      });
+      r.addEventListener('mouseleave', ()=>{ tip.style.opacity=0; });
+    });
+  }
+
+  // ----- share -----
+  function renderShare(e, x, ann){
+    const w = shares().map(v=>Math.round(v*100));
+    const url = location.origin + location.pathname + '#v=' + p.join(',');
+    document.getElementById('shareText').value =
+      'My AUR probability vector — Superbear '+w[0]+'% / Bear '+w[1]+'% / Middle '+w[2]+'% / Bull '+w[3]+'% / Superbull '+w[4]+'%'+
+      ' → E[2031] ≈ '+fm(e)+' per share vs $'+price.toFixed(2)+' ('+(Math.round(x*100)/100).toFixed(2)+'×, '+(ann>=0?'+':'')+(ann*100).toFixed(1)+'%/yr).'+
+      '\nBuild yours: '+url;
+  }
+  function flash(msg){ const c=document.getElementById('copied'); c.textContent=msg; setTimeout(()=>{c.textContent='';}, 2200); }
+  document.getElementById('copyAll').addEventListener('click', ()=>{
+    const ta = document.getElementById('shareText'); ta.select();
+    navigator.clipboard.writeText(ta.value).then(()=>flash('Copied ✓')).catch(()=>{ document.execCommand('copy'); flash('Copied ✓'); });
+  });
+  document.getElementById('copyLink').addEventListener('click', ()=>{
+    const url = location.origin + location.pathname + '#v=' + p.join(',');
+    navigator.clipboard.writeText(url).then(()=>flash('Link copied ✓')).catch(()=>flash('Copy failed — use the text box'));
+  });
+
+  window.addEventListener('hashchange', ()=>{ const h=readHash(); if(h){ p=h; reflect(); render(); } });
+
+  load(); bind(); bindAdv(); reflect(); reflectAdv(); render();
+})();
+</script>
